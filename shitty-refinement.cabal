@@ -1,0 +1,67 @@
+name:                shitty-refinement
+version:             0.1.0.0
+license:             BSD3
+license-file:        LICENSE
+author:              Tran Ma
+maintainer:          tran@defma.in
+category:            Formal Methods
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.8
+
+
+executable example
+  build-depends:
+                      base                            >= 3          && < 5
+                    , deepseq                         >= 1.4        && < 1.5
+                    , QuickCheck                      >= 2.8.2      && < 2.9
+                    , shitty-refinement
+
+  hs-source-dirs:
+                      example
+
+  main-is:            example.hs
+
+  extra-lib-dirs:
+                      example
+
+  c-sources:
+                      example/two.c
+
+library
+  build-depends:
+                      base                            >= 3          && < 5
+                    , deepseq                         >= 1.4        && < 1.5
+                    , QuickCheck                      >= 2.8.2      && < 2.9
+                    , array                           >= 0.5        && < 0.6
+
+  exposed-modules:
+                    Test.Refine
+                    One
+                    Two
+
+  hs-source-dirs:
+                    src, example
+
+  includes:
+                    example/two.h
+
+  install-includes:
+                    example/two.h
+
+  c-sources:
+                    example/two.c
+
+test-suite test
+  type:
+                    exitcode-stdio-1.0
+
+  main-is:
+                    test.hs
+
+  hs-source-dirs:
+                    test
+
+  build-depends:
+                      base                            >= 3          && < 5
+                    , QuickCheck                      >= 2.8.2      && < 2.9
