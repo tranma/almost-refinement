@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module Two where
 
@@ -21,10 +21,13 @@ import Test.QuickCheck.Monadic
 
 import System.IO.Unsafe
 
+import Prelude hiding (elem)
+
 
 foreign import ccall "tree_empty" tree_empty :: IO (Ptr CTree)
 foreign import ccall "tree_insert" tree_insert :: CInt -> Ptr CTree -> IO (Ptr CTree)
 foreign import ccall "tree_rotate_left" tree_rotate_left :: Ptr CTree -> IO (Ptr CTree)
+foreign import ccall "tree_elem" tree_elem :: CInt -> Ptr CTree -> IO Bool
 
 data CTree = CTree {
     _root :: Ptr CNode
@@ -95,6 +98,12 @@ instance NFData a => NFData (Tree a) where
         !_ = rnf b
     in ()
 
+elem :: Eq a => a -> Tree a -> Bool
+elem _ Nil = False
+elem x (Tree y u v)
+  | x == y = True
+  | otherwise = elem x u || elem x v
+
 insert :: Ord a => a -> Tree a -> Tree a
 insert x Nil = Tree x Nil Nil
 insert x (Tree y u v)
@@ -140,13 +149,21 @@ abstract ptr = do
           Tree (fromIntegral (_wow node)) <$> fromNode (_left node) <*> fromNode (_right node)
         x ->
           error ("wow: tag = " <> show x)
-  return . force =<< fromNode (_root t) -- need the force because unsafeperformIO inside gen
+  return . force =<< fromNode (_root t)
 
 abstract_eq :: Tree Int -> Tree Int -> Property
 abstract_eq x y =
   counterexample ("concrete: " <> show x) $
   counterexample ("abstract: " <> show y) $
     List.sort (flatten x) === List.sort (flatten y)
+
+--------------------------------------------------------------------------------
+
+prop_elem :: Int -> Ptr CTree -> Property
+prop_elem x ctree = monadicIO $ do
+  tree <- run $ abstract ctree
+  b    <- run $ tree_elem (fromIntegral x) ctree
+  stop $ b === elem x tree
 
 prop_rotate_left :: Ptr CTree -> Property
 prop_rotate_left ctree = monadicIO $ do

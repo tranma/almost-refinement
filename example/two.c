@@ -177,7 +177,7 @@ tree_t *tree_insert_recolour (node_t *z, tree_t *t) {
     return t;
 }
 
-tree_t *tree_insert (int key, tree_t *t) {
+tree_t *tree_insert (int64_t key, tree_t *t) {
     node_t *y = t->nil;
     node_t *x = t->root;
     node_t *z = node ();
@@ -209,4 +209,20 @@ tree_t *tree_insert (int key, tree_t *t) {
     z->colour = RED;
 
     return tree_insert_recolour (z, t);
+}
+
+int elem (int64_t key, node_t *t) {
+    if (t->tag == NIL) {
+        return 0;
+    } else if (t->key == key) {
+        return 1;
+    } else if (key < t->key) {
+        return elem (key, t->left);
+    } else {
+        return elem (key, t->right);
+    }
+}
+
+int tree_elem (int64_t key, tree_t *t) {
+    return elem (key, t->root);
 }
