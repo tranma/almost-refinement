@@ -8,6 +8,7 @@ module Tree
   , insert
   , delete
   , flatten
+  -- the abstract might be able to do more things...
   , rotateLeft
   , rotateRight
   ) where

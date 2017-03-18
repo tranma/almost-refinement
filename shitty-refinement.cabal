@@ -27,4 +27,4 @@ executable example
   hs-source-dirs:     example
   main-is:            example.hs
   extra-lib-dirs:     example
-  c-sources:          example/two.c
+  c-sources:          example/tree.c
