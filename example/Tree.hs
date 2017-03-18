@@ -2,7 +2,7 @@
 {-# LANGUAGE PatternGuards #-}
 
 module Tree
-  ( Tree
+  ( Tree (..)
   , empty
   , elem
   , insert
@@ -18,7 +18,7 @@ import Prelude hiding (elem)
 data Tree a
   = Nil
   | Tree a (Tree a) (Tree a)
-  deriving (Show)
+  deriving (Eq, Show)
 
 
 empty :: Tree a

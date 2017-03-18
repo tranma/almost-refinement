@@ -6,21 +6,21 @@
 --
 --   Refinement relation:
 --
---     Tree  -- refine --> Multiset
+--     Tree  <-- refine -- List
+--       |                  |
+--       op                 op
+--       |                  |
+--       v                  v
+--     Tree' <-- refine -- List'
+--
+--   Exists an abstraction function:
+--
+--     Tree  -- abstract --> List
 --       |                    |
 --       op                   op
 --       |                    |
 --       v                    v
---     Tree' -- refine --> Multiset'
---
---   Exists an abstraction function:
---
---     Tree  -- exists abstract ---> Multiset
---       |                             |
---       op                            op
---       |                             |
---       v                             v
---     Tree' -- exists abstract --> Multiset'
+--     Tree' -- abstract --> List'
 --
 module One where
 
@@ -47,20 +47,20 @@ abstract_eq xs ys = List.sort xs === List.sort ys
 instance (Ord a, Arbitrary a) => Arbitrary (Tree a) where
   arbitrary = genTree arbitrary
 
-prop_elem_tree_list :: Eq a => a -> Tree a -> Property
-prop_elem_tree_list x tree =
+prop_elem :: Eq a => a -> Tree a -> Property
+prop_elem x tree =
   let list = abstract tree
   in Tree.elem x tree === List.elem x list
 
-prop_insert_tree_list :: (Ord a, Show a) => a -> Tree a -> Property
-prop_insert_tree_list x tree =
+prop_insert :: (Ord a, Show a) => a -> Tree a -> Property
+prop_insert x tree =
   let list = abstract tree
       tree' = Tree.insert x tree
       list' = abstract tree'
   in abstract_eq list' (List.insert x list)
 
-prop_delete_tree_list :: (Ord a, Show a) => a -> Tree a -> Property
-prop_delete_tree_list x tree =
+prop_delete :: (Ord a, Show a) => a -> Tree a -> Property
+prop_delete x tree =
   let list = abstract tree
       tree' = Tree.delete x tree
       list' = abstract tree'
