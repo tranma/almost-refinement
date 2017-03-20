@@ -1,3 +1,3 @@
-import One
-import Two
-import Three
+import Good
+import Bad
+import Ugly

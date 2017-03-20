@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Two where
+module Bad where
 
 import qualified Tree as Pure
 import qualified MutableTree as Mutable
@@ -73,5 +73,5 @@ prop_delete x = monadicST $ forAllM (genTree arbitrary) $ \st -> do
   stop $ abstract_eq p' p''
 
 return []
-two :: IO Bool
-two = $quickCheckAll
+bad :: IO Bool
+bad = $quickCheckAll

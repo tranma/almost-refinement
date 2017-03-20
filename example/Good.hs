@@ -22,7 +22,7 @@
 --       v                    v
 --     Tree' -- abstract --> List'
 --
-module One where
+module Good where
 
 import Tree (Tree)
 import qualified Tree as Tree
@@ -66,6 +66,9 @@ prop_delete x tree =
       list' = abstract tree'
   in abstract_eq list' (List.delete x list)
 
+-- Tree (elem, insert, delete) refines List (elem, insert, delete)
+-- so any correctness properites proven about those List operations apply to Tree
+
 return []
-one :: IO Bool
-one = $quickCheckAll
+good :: IO Bool
+good = $quickCheckAll

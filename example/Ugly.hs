@@ -5,7 +5,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Three where
+module Ugly where
 
 import qualified Tree as Pure
 import SavageTree (CTree (..), CNode (..))
@@ -82,6 +82,6 @@ prop_delete x ctree = monadicIO $ do
 
 
 return []
-three :: IO Bool
-three = $quickCheckAll
+ugly :: IO Bool
+ugly = $quickCheckAll
 
