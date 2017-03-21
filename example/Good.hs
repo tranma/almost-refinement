@@ -66,8 +66,13 @@ prop_delete x tree =
       list' = abstract tree'
   in abstract_eq list' (List.delete x list)
 
--- Tree (elem, insert, delete) refines List (elem, insert, delete)
--- so any correctness properites proven about those List operations apply to Tree
+prop_rotate :: (Ord a, Show a) => Tree a -> Property
+prop_rotate tree =
+  let list = abstract tree
+      tree' = Tree.rotateLeft tree
+      list' = abstract tree'
+  in abstract_eq list' (id list)
+
 
 return []
 good :: IO Bool

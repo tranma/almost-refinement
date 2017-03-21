@@ -9,7 +9,6 @@ module Tree
   , delete
   , flatten
   , rotateLeft
-  , rotateRight
   ) where
 
 import Data.Monoid
@@ -80,15 +79,6 @@ rotateLeft t@(Tree x u v) =
     Tree y m n ->
       Tree y (Tree x u m) n
 
-rotateRight :: Tree a -> Tree a
-rotateRight Nil =
-  Nil
-rotateRight t@(Tree x u v) =
-  case rotateLeft u of
-    Nil ->
-      t
-    Tree y m n ->
-      Tree y m (Tree x n v)
 
 flatten :: Tree a -> [a]
 flatten Nil = []

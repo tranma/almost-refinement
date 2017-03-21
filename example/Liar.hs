@@ -2,7 +2,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-module Four where
+module Liar where
 
 import Prelude
 import Test.QuickCheck
@@ -27,10 +27,10 @@ b x = do
   let result = x `rem` 2 == 0
   putStrLn "Should I lie? [y/n]"
   c <- getChar
+  putStrLn ""
   case c of
     'y' -> return (not result)
-    'n' -> return result
-    _   -> error "wow"
+    _ -> return result
 
 --------------------------------------------------------------------------------
 
