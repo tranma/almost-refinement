@@ -12,6 +12,7 @@ cabal-version:       >=1.8
 
 library
   build-depends:      base                            >= 3          && < 5
+                    , QuickCheck                      >= 2.8.2      && < 2.9
                     , template-haskell                >= 2.10       && < 3
 
   exposed-modules:    Test.Refine

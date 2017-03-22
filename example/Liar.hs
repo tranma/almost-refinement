@@ -38,15 +38,13 @@ b x = do
 prop_a :: Int -> Property
 prop_a x = property (a x /= a (x + 1))
 
--- B does not refine A
+-- A does refine B, given the right non-deterministic choice ('y')
+-- because B has strictly more transitions and states than A.
 prop_b_a :: Int -> Property
 prop_b_a x = monadicIO $ do
   let a' = a x
   b' <- run $ b x
   stop $ a' === b'
-
--- A does refine B, given the right non-deterministic choice ('y')
--- because B has strictly more transitions and states than A.
 
 not_refine :: IO ()
 not_refine = quickCheckWith (stdArgs { maxSuccess = 3 }) prop_b_a
