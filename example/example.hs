@@ -6,4 +6,6 @@ import Liar
 
 import TH
 
+import Test.QuickCheck
+
 main = undefined

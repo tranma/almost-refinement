@@ -7,76 +7,63 @@ module Test.Refine where
 
 import Prelude
 
-import Data.Char
 import Control.Monad
+import Data.List
 import Language.Haskell.TH
 import Test.QuickCheck
 
-qRefine :: Name -> Name -> Name -> Name -> [Name] -> Name -> Q Exp
-qRefine ty_a op_a ty_c op_c names_c fun = do
+import Debug.Trace
+
+qRefineEq = qRefineWith Nothing
+qRefine f = qRefineWith (Just f)
+
+qRefineWith :: Maybe Name -> Name -> Name -> [Name] -> Name -> Q Exp
+qRefineWith eq op_a op_c names_c abs_fun = do
   let
     abstract_name i =
-      "abstract_" ++ (fmap toLower . show $ ty_a) ++ "_" ++ show i --wow
-    abstract ref_ty f (arg, ty) n
-      | ref_ty == ty
+      "abstract_" ++ "_" ++ show i --wow
+    abstract f arg n
+      | isPrefixOf "ref_" (nameBase arg)
       = valD (varP n) (normalB (appE (varE f) (varE arg))) []
       | otherwise
       = valD (varP n) (normalB (varE arg)) []
     abstract_app ns =
-      foldr appE (varE op_a) (fmap varE ns)
+      foldl appE (varE op_a) (fmap varE ns)
     concrete_app ns =
-      foldr appE (varE op_c) (fmap varE ns)
-    nameOfType t =
-      case t of
-        ListT ->
-          mkName "list"
-        ConT n ->
-          n
-        _ ->
-          error ("can't read name " ++ show t)
+      foldl appE (varE op_c) (fmap varE ns)
 
-  op_a_ret <- functionReturnsT op_a
-  op_c_ret <- functionReturnsT op_c
-
-  args_a <- zip names_c . fmap (mkName . show) <$> functionT op_a
-
-  if nameOfType op_a_ret == ty_a && nameOfType op_c_ret == ty_c
-  then do
-    names_a <- mapM (newName . abstract_name) [0..length names_c - 1]
-    lets <- zipWithM (abstract ty_a fun) args_a names_a
-    letE (fmap pure lets)
-         [|$(abstract_app names_a) === $(concrete_app names_c)|]
-  else
-    [e|undefined|]
+  names_a <- mapM (return . mkName . abstract_name) [0..length names_c - 1]
+  lets <- zipWithM (abstract abs_fun) names_c names_a
+  letE (fmap pure lets)
+    $ case eq of
+        Nothing ->
+          [|$(abstract_app names_a) === $(concrete_app names_c)|]
+        Just f ->
+          [|$(varE f) $(abstract_app names_a) ($(varE abs_fun) $(concrete_app names_c))|]
 
 functionT :: Name -> Q [Type]
 functionT name = do
   info <- reify name
+  let
+    go = return . takeArrowsT
   case info of
-    VarI _ ty _ _ ->
-      return . takeArrowsT $ ty
+    ClassOpI _ t _ _ ->
+      go t
+    VarI _ t _ _ ->
+      go t
     _ ->
       error ("not a function: " ++ nameBase name)
-
-functionReturnsT :: Name -> Q Type
-functionReturnsT name = do
-  info <- reify name
-  traceM $ show info
-  case info of
-    VarI _ ty _ _ ->
-      return . takeArrowT $ ty
-    _ ->
-      error ("not a function: " ++ nameBase name)
-
-takeArrowT :: Type -> Type
-takeArrowT (AppT ArrowT t) = takeArrowT t
-takeArrowT t = t
 
 takeArrowsT :: Type -> [Type]
 takeArrowsT =
   let
-    go xs (AppT ArrowT t) =
-      t : xs
-    go xs _ =
-      xs
-  in reverse . go []
+    go x | trace ("go: " ++ show x) False = undefined
+    go (ForallT _ _ t) =
+      go t
+    go (AppT ArrowT t) =
+      [t]
+    go (AppT x y) =
+      go x ++ go y
+    go _ =
+      []
+  in go
